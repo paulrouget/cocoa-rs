@@ -225,7 +225,7 @@ pub enum NSOpenGLContextParameter {
 
 #[repr(u64)]
 #[derive(Copy, Clone, PartialEq)]
-pub enum NSWindowButton {
+pub enum NSWindowButtonKind {
     NSWindowCloseButton            = 0,
     NSWindowMiniaturizeButton      = 1,
     NSWindowZoomButton             = 2,
@@ -342,6 +342,16 @@ impl NSMenu for id {
 
     unsafe fn addItemWithTitle_action_keyEquivalent(self, title: id, action: SEL, key: id) -> id {
         msg_send![self, addItemWithTitle:title action:action keyEquivalent:key]
+    }
+}
+
+pub trait NSWindowButton {
+    unsafe fn setHidden_(self, hidden: BOOL);
+}
+
+impl NSWindowButton for id {
+    unsafe fn setHidden_(self, hidden: BOOL) {
+        msg_send![self, setHidden:hidden]
     }
 }
 
@@ -543,7 +553,7 @@ pub trait NSWindow {
     // TODO: Managing Cursor Rectangles
 
     // Managing Title Bars
-    unsafe fn standardWindowButton_(self, windowButtonKind: NSWindowButton) -> id;
+    unsafe fn standardWindowButton_(self, windowButtonKind: NSWindowButtonKind) -> id;
 
     // TODO: Managing Tooltips
     // TODO: Handling Events
@@ -1034,7 +1044,7 @@ impl NSWindow for id {
 
     // Managing Title Bars
 
-    unsafe fn standardWindowButton_(self, windowButtonKind: NSWindowButton) -> id {
+    unsafe fn standardWindowButton_(self, windowButtonKind: NSWindowButtonKind) -> id {
         msg_send![self, standardWindowButton:windowButtonKind]
     }
 
