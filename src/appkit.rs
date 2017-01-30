@@ -3350,6 +3350,18 @@ extern {
     pub fn NSRectFill(rect: NSRect);
 }
 
+pub trait NSTextField {
+    unsafe fn alloc(_: Self) -> id {
+        msg_send![class("NSTextField"), alloc]
+    }
+    unsafe fn initWithFrame_(self, frameRect: NSRect) -> id;
+}
+
+impl NSTextField for id {
+    unsafe fn initWithFrame_(self, frameRect: NSRect) -> id {
+        msg_send![self, initWithFrame:frameRect]
+    }
+}
 
 #[repr(u64)]
 pub enum NSTabViewType {
