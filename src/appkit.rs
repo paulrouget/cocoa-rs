@@ -81,6 +81,9 @@ extern {
     // Pasteboard reading options - OS X v10.6 and later. (NSString *)
     pub static NSPasteboardURLReadingFileURLsOnlyKey: id;
     pub static NSPasteboardURLReadingContentsConformToTypesKey: id;
+
+    pub static NSToolbarToggleSidebarItemIdentifier: id;
+    pub static NSToolbarShowColorsItemIdentifier: id;
 }
 
 pub const NSAppKitVersionNumber10_0: f64 = 577.0;
@@ -120,6 +123,15 @@ pub enum NSApplicationActivationPolicy {
     NSApplicationActivationPolicyAccessory = 1,
     NSApplicationActivationPolicyProhibited = 2,
     NSApplicationActivationPolicyERROR = -1
+}
+
+#[repr(i64)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NSToolbarDisplayMode {
+    NSToolbarDisplayModeDefault = 0,
+    NSToolbarDisplayModeIconAndLabel = 1,
+    NSToolbarDisplayModeIconOnly = 2,
+    NSToolbarDisplayModeLabelOnly = 3,
 }
 
 #[repr(u64)]
@@ -926,6 +938,9 @@ pub trait NSWindow {
     // TODO: Managing the Window Menu
     // TODO: Managing Cursor Rectangles
 
+    unsafe fn toolbar_(self) -> id;
+    unsafe fn setToolbar_(self, toolbar:id);
+
     // Managing Title Bars
     unsafe fn standardWindowButton_(self, windowButtonKind: NSWindowButton) -> id;
 
@@ -1415,6 +1430,14 @@ impl NSWindow for id {
     // TODO: Managing Field Editors
     // TODO: Managing the Window Menu
     // TODO: Managing Cursor Rectangles
+
+    unsafe fn toolbar_(self) -> id {
+        msg_send![self, toolbar]
+    }
+
+    unsafe fn setToolbar_(self, toolbar:id) {
+        msg_send![self, setToolbar:toolbar];
+    }
 
     // Managing Title Bars
 
@@ -2773,6 +2796,52 @@ impl NSScreen for id {
 
     unsafe fn convertRectToBacking_(self, aRect: NSRect) -> NSRect {
         msg_send![self, convertRectToBacking:aRect]
+    }
+}
+
+pub trait NSToolbar {
+     unsafe fn alloc(_: Self) -> id {
+         msg_send![class("NSToolbar"), alloc]
+     }
+    unsafe fn insertItemWithItemIdentifier_atIndex_(self, identifier:id, index:NSInteger);
+    unsafe fn setDisplayMode_(self, mode:NSToolbarDisplayMode);
+    unsafe fn setDelegate_(self, delegate: id);
+}
+
+impl NSToolbar for id {
+    unsafe fn insertItemWithItemIdentifier_atIndex_(self, identifier:id, index:NSInteger) {
+        msg_send![self, insertItemWithItemIdentifier:identifier atIndex:index];
+    }
+    unsafe fn setDisplayMode_(self, mode:NSToolbarDisplayMode) {
+        msg_send![self, setDisplayMode:mode];
+    }
+    unsafe fn setDelegate_(self, delegate: id) {
+        msg_send![self, setDelegate:delegate];
+    }
+}
+
+pub trait NSToolbarItem {
+     unsafe fn alloc(_: Self) -> id {
+         msg_send![class("NSToolbarItem"), alloc]
+     }
+     unsafe fn initWithItemIdentifier_(self, identifier:id) -> id;
+     unsafe fn setLabel_(self, label:id);
+     unsafe fn view(self) -> id;
+     unsafe fn setView_(self, view:id);
+}
+
+impl NSToolbarItem for id {
+    unsafe fn initWithItemIdentifier_(self, identifier:id) -> id {
+        msg_send![self, initWithItemIdentifier:identifier]
+    }
+    unsafe fn setLabel_(self, label:id) {
+        msg_send![self, setLabel:label];
+    }
+    unsafe fn view(self) -> id /* (NSView *) */ {
+        msg_send![self, view]
+    }
+    unsafe fn setView_(self, view: id /* (NSView *) */) {
+        msg_send![self, setView:view]
     }
 }
 
