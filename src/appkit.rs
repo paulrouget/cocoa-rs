@@ -84,6 +84,8 @@ extern {
 
     pub static NSToolbarToggleSidebarItemIdentifier: id;
     pub static NSToolbarShowColorsItemIdentifier: id;
+    pub static NSToolbarSpaceItemIdentifier: id;
+    pub static NSToolbarFlexibleSpaceItemIdentifier: id;
 }
 
 pub const NSAppKitVersionNumber10_0: f64 = 577.0;
@@ -1681,6 +1683,8 @@ pub trait NSView {
 
     unsafe fn widthAnchor(self) -> id;
     unsafe fn heightAnchor(self) -> id;
+
+    unsafe fn setTranslatesAutoresizingMaskIntoConstraints_(self, val:BOOL);
 }
 
 impl NSView for id {
@@ -1750,6 +1754,10 @@ impl NSView for id {
 
     unsafe fn heightAnchor(self) -> id {
         msg_send![self, heightAnchor]
+    }
+
+    unsafe fn setTranslatesAutoresizingMaskIntoConstraints_(self, val: BOOL) {
+        msg_send![self, setTranslatesAutoresizingMaskIntoConstraints:val];
     }
 }
 
@@ -2828,6 +2836,8 @@ pub trait NSToolbarItem {
      unsafe fn setLabel_(self, label:id);
      unsafe fn view(self) -> id;
      unsafe fn setView_(self, view:id);
+     unsafe fn setMaxSize_(self, size:NSSize);
+     unsafe fn setMinSize_(self, size:NSSize);
 }
 
 impl NSToolbarItem for id {
@@ -2842,6 +2852,12 @@ impl NSToolbarItem for id {
     }
     unsafe fn setView_(self, view: id /* (NSView *) */) {
         msg_send![self, setView:view]
+    }
+    unsafe fn setMaxSize_(self, size: NSSize) {
+        msg_send![self, setMaxSize:size]
+    }
+    unsafe fn setMinSize_(self, size: NSSize) {
+        msg_send![self, setMinSize:size]
     }
 }
 

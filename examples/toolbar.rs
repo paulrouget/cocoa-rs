@@ -21,7 +21,7 @@ fn main() {
         app.setActivationPolicy_(NSApplicationActivationPolicyRegular);
 
         let window = NSWindow::alloc(nil).initWithContentRect_styleMask_backing_defer_(
-            NSRect::new(NSPoint::new(0., 0.), NSSize::new(200., 200.)),
+            NSRect::new(NSPoint::new(0., 0.), NSSize::new(600., 200.)),
             NSTitledWindowMask as NSUInteger |
                 NSClosableWindowMask as NSUInteger |
                 NSResizableWindowMask as NSUInteger |
@@ -75,28 +75,42 @@ impl ToolbarDelegate {
         extern fn toolbar_default_item_identifiers(this: &Object, _: Sel, _: id) -> id {
             println!("toolbarDefaultItemIdentifiers…");
             unsafe {
-                // NSArray::arrayWithObject(nil, NSToolbarShowColorsItemIdentifier)
-                let foo = NSString::alloc(nil).init_str("FOOITEM");
-                let bar = NSString::alloc(nil).init_str("FOOBAR");
-                NSArray::arrayWithObjects(nil, &[foo, bar])
+                NSArray::arrayWithObjects(nil, &[
+                  NSString::alloc(nil).init_str("BUTTON"),
+                  NSString::alloc(nil).init_str("BUTTON"),
+                  NSToolbarFlexibleSpaceItemIdentifier,
+                  NSString::alloc(nil).init_str("TEXT"),
+                  NSToolbarFlexibleSpaceItemIdentifier,
+                  NSToolbarToggleSidebarItemIdentifier,
+                ])
             }
         }
 
-        extern fn toolbar(this: &Object, _: Sel, _: id, identifier: id, _: id) -> id {
+        extern fn toolbar(this: &Object, _: Sel, _toolbar: id, identifier: id, _: id) -> id {
             println!("toolbar…");
+            let mut item = nil;
             unsafe {
-                let origin = NSPoint::new(0., 0.);
-                let size = NSSize::new(80., 40.);
-                let frame = NSRect::new(origin, size);
-                let button = NSButton::alloc(nil);
-                NSButton::initWithFrame_(button, frame);
-                NSButton::setBezelStyle_(button, NSBezelStyle::NSRoundedBezelStyle);
-                NSButton::setTitle_(button, NSString::alloc(nil).init_str("reload"));
-                let item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
-                NSToolbarItem::setView_(item, button);
-
-                item
+                if NSString::isEqualToString(identifier, "BUTTON") {
+                }
+                if NSString::isEqualToString(identifier, "TEXT") {
+                    let field = NSView::init(NSTextField::alloc(nil));
+                    NSTextField::setStringValue_(field, identifier);
+                    item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
+                    NSButton::setBezelStyle_(field, NSBezelStyle::NSRoundedBezelStyle);
+                    NSToolbarItem::setMinSize_(item, NSSize::new(100., 0.));
+                    NSToolbarItem::setMaxSize_(item, NSSize::new(400., 100.));
+                    NSToolbarItem::setView_(item, field);
+                } else {
+                    let button = NSView::init(NSButton::alloc(nil));
+                    NSButton::setBezelStyle_(button, NSBezelStyle::NSRoundedBezelStyle);
+                    NSButton::setTitle_(button, identifier);
+                    item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
+                    NSToolbarItem::setMinSize_(item, NSSize::new(40., 35.));
+                    NSToolbarItem::setMaxSize_(item, NSSize::new(100., 35.));
+                    NSToolbarItem::setView_(item, button);
+                }
             }
+            item
         }
 
         static mut DELEGATE_CLASS: *const Class = 0 as *const Class;
