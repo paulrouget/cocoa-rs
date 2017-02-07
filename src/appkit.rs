@@ -325,6 +325,26 @@ pub enum NSBezelStyle {
     NSRoundedDisclosureBezelStyle  = 14,
 }
 
+#[repr(u64)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NSSegmentStyle {
+    NSSegmentStyleAutomatic         = 0,
+    NSSegmentStyleRounded           = 1,
+    NSSegmentStyleTexturedRounded   = 2,
+    NSSegmentStyleRoundRect         = 3,
+    NSSegmentStyleTexturedSquare    = 4,
+    NSSegmentStyleCapsule           = 5,
+    NSSegmentStyleSmallSquare       = 6,
+}
+
+#[repr(u64)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NSSegmentSwitchTrackingMode {
+    NSSegmentSwitchTrackingSelectOne = 0,
+    NSSegmentSwitchTrackingSelectAny = 1,
+    NSSegmentSwitchTrackingMomentary = 2,
+}
+
 pub static NSMainMenuWindowLevel: libc::int32_t = 24;
 
 pub trait NSApplication {
@@ -806,6 +826,8 @@ pub trait NSWindow {
         msg_send![class("NSWindow"), alloc]
     }
 
+    unsafe fn setAppearance_(self, appearance: id);
+
     // Creating Windows
     unsafe fn initWithContentRect_styleMask_backing_defer_(self,
                                                            rect: NSRect,
@@ -1035,6 +1057,10 @@ pub trait NSWindow {
 
 impl NSWindow for id {
     // Creating Windows
+
+    unsafe fn setAppearance_(self, appearance: id) {
+        msg_send![self, setAppearance:appearance];
+    }
 
     unsafe fn initWithContentRect_styleMask_backing_defer_(self,
                                                            rect: NSRect,
@@ -2861,6 +2887,35 @@ impl NSToolbarItem for id {
     }
 }
 
+pub trait NSSegmentedControl {
+    unsafe fn setSegmentCount_(self, count: NSInteger);
+     unsafe fn setSegmentStyle_(self, style: NSSegmentStyle);
+     unsafe fn setTrackingMode_(self, style: NSSegmentSwitchTrackingMode);
+     unsafe fn setLabel_forSegment_(self, label:id, segment:NSInteger);
+     unsafe fn setImage_forSegment_(self, label:id, segment:NSInteger);
+     unsafe fn alloc(_: Self) -> id {
+         msg_send![class("NSSegmentedControl"), alloc]
+     }
+}
+
+impl NSSegmentedControl for id {
+    unsafe fn setSegmentCount_(self, count: NSInteger) {
+        msg_send![self, setSegmentCount:count];
+    }
+    unsafe fn setSegmentStyle_(self, style: NSSegmentStyle) {
+        msg_send![self, setSegmentStyle:style];
+    }
+    unsafe fn setTrackingMode_(self, mode: NSSegmentSwitchTrackingMode) {
+        msg_send![self, setTrackingMode:mode];
+    }
+    unsafe fn setLabel_forSegment_(self, label:id, segment:NSInteger) {
+        msg_send![self, setLabel:label forSegment:segment];
+    }
+    unsafe fn setImage_forSegment_(self, image:id, segment:NSInteger) {
+        msg_send![self, setImage:image forSegment:segment];
+    }
+}
+
 pub trait NSButton {
      unsafe fn setImage_(self, img: id /* (NSImage *) */);
      unsafe fn setBezelStyle_(self, style: NSBezelStyle);
@@ -2883,6 +2938,16 @@ impl NSButton for id {
     }
     unsafe fn setImage_(self, img: id /* (NSImage *) */) {
         msg_send![self, setImage:img]
+    }
+}
+
+pub trait NSAppearance {
+    unsafe fn named_(_: Self, name: id) -> id;
+}
+
+impl NSAppearance for id {
+    unsafe fn named_(_: Self, name: id) -> id {
+        msg_send![class("NSAppearance"), appearanceNamed:name]
     }
 }
 
@@ -3172,6 +3237,8 @@ impl NSImage for id {
 
 #[link(name = "AppKit", kind = "framework")]
 extern {
+    pub static NSAppearanceNameVibrantDark: id;
+
     // Image hints (NSString* const)
     pub static NSImageHintCTM: id;
     pub static NSImageHintInterpolation: id;

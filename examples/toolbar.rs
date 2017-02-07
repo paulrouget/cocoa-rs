@@ -32,6 +32,7 @@ fn main() {
         ).autorelease();
 
         window.makeKeyAndOrderFront_(nil);
+        window.setAppearance_(NSAppearance::named_(nil, NSAppearanceNameVibrantDark));
 
         let toolbar = NSToolbar::alloc(nil).initWithIdentifier_(NSString::alloc(nil).init_str("tb1"));
         toolbar.setDisplayMode_(NSToolbarDisplayMode::NSToolbarDisplayModeIconAndLabel);
@@ -76,8 +77,9 @@ impl ToolbarDelegate {
             println!("toolbarDefaultItemIdentifiers…");
             unsafe {
                 NSArray::arrayWithObjects(nil, &[
-                  NSString::alloc(nil).init_str("BUTTON"),
-                  NSString::alloc(nil).init_str("BUTTON"),
+                  // NSString::alloc(nil).init_str("BUTTON"),
+                  // NSString::alloc(nil).init_str("BUTTON"),
+                  NSString::alloc(nil).init_str("DOUBLEBUTTON"),
                   NSToolbarFlexibleSpaceItemIdentifier,
                   NSString::alloc(nil).init_str("TEXT"),
                   NSToolbarFlexibleSpaceItemIdentifier,
@@ -90,7 +92,27 @@ impl ToolbarDelegate {
             println!("toolbar…");
             let mut item = nil;
             unsafe {
+                if NSString::isEqualToString(identifier, "DOUBLEBUTTON") {
+                    println!("building DOUBLEBUTTON");
+                    let db = NSView::init(NSSegmentedControl::alloc(nil));
+                    db.setSegmentStyle_(NSSegmentStyle::NSSegmentStyleRounded);
+                    db.setTrackingMode_(NSSegmentSwitchTrackingMode::NSSegmentSwitchTrackingMomentary);
+                    db.setSegmentCount_(2);
+                    db.setImage_forSegment_(NSImage::imageNamed_(nil, NSImageNameGoLeftTemplate), 0);
+                    db.setImage_forSegment_(NSImage::imageNamed_(nil, NSImageNameGoRightTemplate), 1);
+                    item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
+                    NSToolbarItem::setMinSize_(item, NSSize::new(65., 25.));
+                    NSToolbarItem::setMaxSize_(item, NSSize::new(65., 40.));
+                    NSToolbarItem::setView_(item, db);
+                }
                 if NSString::isEqualToString(identifier, "BUTTON") {
+                    let button = NSView::init(NSButton::alloc(nil));
+                    NSButton::setBezelStyle_(button, NSBezelStyle::NSRoundedBezelStyle);
+                    NSButton::setTitle_(button, identifier);
+                    item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
+                    NSToolbarItem::setMinSize_(item, NSSize::new(40., 35.));
+                    NSToolbarItem::setMaxSize_(item, NSSize::new(100., 35.));
+                    NSToolbarItem::setView_(item, button);
                 }
                 if NSString::isEqualToString(identifier, "TEXT") {
                     let field = NSView::init(NSTextField::alloc(nil));
@@ -100,14 +122,6 @@ impl ToolbarDelegate {
                     NSToolbarItem::setMinSize_(item, NSSize::new(100., 0.));
                     NSToolbarItem::setMaxSize_(item, NSSize::new(400., 100.));
                     NSToolbarItem::setView_(item, field);
-                } else {
-                    let button = NSView::init(NSButton::alloc(nil));
-                    NSButton::setBezelStyle_(button, NSBezelStyle::NSRoundedBezelStyle);
-                    NSButton::setTitle_(button, identifier);
-                    item = NSToolbarItem::alloc(nil).initWithItemIdentifier_(identifier).autorelease();
-                    NSToolbarItem::setMinSize_(item, NSSize::new(40., 35.));
-                    NSToolbarItem::setMaxSize_(item, NSSize::new(100., 35.));
-                    NSToolbarItem::setView_(item, button);
                 }
             }
             item
