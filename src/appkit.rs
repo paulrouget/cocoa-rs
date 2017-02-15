@@ -310,6 +310,13 @@ pub enum NSWindowButton {
 
 #[repr(u64)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NSProgressIndicatorStyle {
+    NSProgressIndicatorSpinningStyle = 1
+    // FIXME: more
+}
+
+#[repr(u64)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum NSBezelStyle {
     NSRoundedBezelStyle            = 1,
     NSRegularSquareBezelStyle      = 2,
@@ -3532,6 +3539,35 @@ impl NSStatusBar for id {
 
 extern {
     pub fn NSRectFill(rect: NSRect);
+}
+
+pub trait NSProgressIndicator {
+    unsafe fn alloc(_: Self) -> id {
+        msg_send![class("NSProgressIndicator"), alloc]
+    }
+    unsafe fn initWithFrame_(self, frameRect: NSRect) -> id;
+    unsafe fn setStyle_(self, style: NSProgressIndicatorStyle);
+    unsafe fn startAnimation_(self, sender: id);
+    unsafe fn stopAnimation_(self, sender: id);
+    unsafe fn setIndeterminate_(self, indeterminate: BOOL);
+}
+
+impl NSProgressIndicator for id {
+    unsafe fn initWithFrame_(self, frameRect: NSRect) -> id {
+        msg_send![self, initWithFrame:frameRect]
+    }
+    unsafe fn setStyle_(self, style: NSProgressIndicatorStyle) {
+        msg_send![self, setStyle:style];
+    }
+    unsafe fn startAnimation_(self, sender: id) {
+        msg_send![self, startAnimation:sender];
+    }
+    unsafe fn stopAnimation_(self, sender: id) {
+        msg_send![self, stopAnimation:sender];
+    }
+    unsafe fn setIndeterminate_(self, indeterminate: BOOL) {
+        msg_send![self, setIndeterminate:indeterminate];
+    }
 }
 
 pub trait NSTextField {
