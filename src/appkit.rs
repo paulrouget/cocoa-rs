@@ -2900,6 +2900,7 @@ pub trait NSSegmentedControl {
      unsafe fn setTrackingMode_(self, style: NSSegmentSwitchTrackingMode);
      unsafe fn setLabel_forSegment_(self, label:id, segment:NSInteger);
      unsafe fn setImage_forSegment_(self, label:id, segment:NSInteger);
+     unsafe fn setEnabled_forSegment_(self, enabled:BOOL, segment:NSInteger);
      unsafe fn alloc(_: Self) -> id {
          msg_send![class("NSSegmentedControl"), alloc]
      }
@@ -2920,6 +2921,9 @@ impl NSSegmentedControl for id {
     }
     unsafe fn setImage_forSegment_(self, image:id, segment:NSInteger) {
         msg_send![self, setImage:image forSegment:segment];
+    }
+    unsafe fn setEnabled_forSegment_(self, enabled:BOOL, segment:NSInteger) {
+        msg_send![self, setEnabled:enabled forSegment:segment];
     }
 }
 
@@ -3905,10 +3909,14 @@ impl NSLayoutDimension for id {
 
 pub trait NSColor {
     unsafe fn clearColor(_: Self) -> id;
+    unsafe fn underPageBackgroundColor(_: Self) -> id;
 }
 
 impl NSColor for id {
     unsafe fn clearColor(_: Self) -> id {
         msg_send![class("NSColor"), clearColor]
+    }
+    unsafe fn underPageBackgroundColor(_: Self) -> id {
+        msg_send![class("NSColor"), underPageBackgroundColor]
     }
 }
